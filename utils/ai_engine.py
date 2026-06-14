@@ -2,7 +2,8 @@ import streamlit as st
 import google.generativeai as genai
 
 def call_ai_agent(prompt, system_instruction="You are a helpful agriculture expert."):
-    """Routes the prompt safely using the official modern Google GenAI SDK framework."""
+    """Routes the prompt safely using the official modern Google GenAI SDK framework 
+    with strict multi-language response enforcement."""
     ai_mode = st.session_state.get("ai_mode", "Bring Your Own Key (BYOK)")
     
     # --- OPTION A: BRING YOUR OWN KEY (BYOK) ---
@@ -18,21 +19,25 @@ def call_ai_agent(prompt, system_instruction="You are a helpful agriculture expe
             # Configure the library with your API key
             genai.configure(api_key=api_key)
             
-            # Using the supported flagship production model with robust configuration parsing
+            # Using the supported flagship production model
             model = genai.GenerativeModel(
                 model_name="gemini-2.5-flash",
                 generation_config={"response_mime_type": "text/plain"}
             )
             
-            # Merging system instructions right into the content generation pipeline safely
-            full_prompt = f"System Instruction: {system_instruction}\n\nUser Question: {prompt}"
+            # CRITICAL LANGUAGE FORCE: Instructing the model to reply in the user's language choice
+            full_prompt = (
+                f"{system_instruction}\n"
+                f"IMPORTANT: Detect the language of the user's question and respond entirely in that same language "
+                f"(e.g., if asked in Telugu, reply in Telugu script; if in Hindi, reply in Hindi script).\n\n"
+                f"User Question: {prompt}"
+            )
             
             # Generate content
             response = model.generate_content(full_prompt)
             return response.text
             
         except Exception as e:
-            # Show the raw exact error coming from Google's servers
             return f"❌ Google API Response Error: {str(e)}"
 
     # --- OPTION B: LOCAL INFERENCE (OLLAMA) ---
@@ -42,7 +47,7 @@ def call_ai_agent(prompt, system_instruction="You are a helpful agriculture expe
             try:
                 genai.configure(api_key=api_key)
                 model = genai.GenerativeModel(model_name="gemini-2.5-flash")
-                full_prompt = f"System Instruction: {system_instruction}\n\nUser Question: {prompt}"
+                full_prompt = f"{system_instruction}\nRespond in the user's language.\n\nUser Question: {prompt}"
                 response = model.generate_content(full_prompt)
                 return response.text
             except Exception:
