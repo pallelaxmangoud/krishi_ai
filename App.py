@@ -81,3 +81,4 @@ with col2:
     st.info(
         "💡 **Hackathon Tip:** Use the sidebar navigation to switch between pages. "
         "Your language settings and API keys will seamlessly follow you across pages!"
+    )
