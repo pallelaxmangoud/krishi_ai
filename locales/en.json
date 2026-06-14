@@ -1,0 +1,13 @@
+{
+    "welcome": "Welcome to Krishi-AI",
+    "select_lang": "Choose Language",
+    "ai_setting": "AI Engine Configuration",
+    "chat_title": "Agri-Chat Assistant",
+    "chat_placeholder": "Ask something (e.g., 'What is the best fertilizer for rice?')",
+    "crop_doctor_header": "Crop Doctor - Plant Disease Diagnosis",
+    "crop_doctor_sub": "Upload a clear picture of a plant leaf to detect diseases.",
+    "upload_label": "Choose a leaf image...",
+    "analyze_button": "Diagnose Disease 🩺",
+    "mandi_pulse_header": "Mandi Pulse - Market Analytics",
+    "mandi_pulse_sub": "Track live crop market updates and analytics statistics."
+}
