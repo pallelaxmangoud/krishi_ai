@@ -15,7 +15,7 @@ def call_ai_agent(prompt, system_instruction="You are a helpful agriculture expe
             return "⚠️ Please enter your Google Gemini API Key in the sidebar configuration on the Home page to chat!"
             
         # List of available models to cycle through in case one throws a 404
-        model_options = ["gemini-pro", "gemini-1.5-flash-latest", "gemini-1.5-pro"]
+        model_options = ["gemini-pro", "gemini-1.5-flash", "gemini-1.5-pro"]
         
         try:
             genai.configure(api_key=api_key)
@@ -27,11 +27,12 @@ def call_ai_agent(prompt, system_instruction="You are a helpful agriculture expe
                         model_name=model_name,
                         system_instruction=system_instruction
                     )
-                    response = model.generate_content(prompt, timeout=30)
+                    # Removed the invalid timeout keyword argument
+                    response = model.generate_content(prompt)
                     return response.text
                 except Exception as model_err:
-                    # If it's a 404, continue to the next model in the list
-                    if "404" in str(model_err):
+                    # If it's a 404 or model support issue, continue to the next model option
+                    if "404" in str(model_err) or "not found" in str(model_err).lower():
                         continue
                     else:
                         raise model_err
