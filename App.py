@@ -49,9 +49,14 @@ labels = load_localization(lang_code)
 # AI Engine Options
 st.sidebar.write("---")
 st.sidebar.subheader("🤖 AI Engine Configuration")
+
+# Enforce permanent state keys so selections persist across pages on the live web
+if "ai_mode" not in st.session_state:
+    st.session_state["ai_mode"] = "Bring Your Own Key (BYOK)"
+
 ai_mode = st.sidebar.radio(
     "Select AI Mode:",
-    options=["Local Inference (Ollama)", "Bring Your Own Key (BYOK)"],
+    options=["Bring Your Own Key (BYOK)", "Local Inference (Ollama)"],
     key="ai_mode"
 )
 
