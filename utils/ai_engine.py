@@ -2,7 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 
 def call_ai_agent(prompt, system_instruction="You are a helpful agriculture expert."):
-    """Routes the prompt safely using the official Google GenAI SDK framework with automatic fallback handling."""
+    """Routes the prompt cleanly using the official standard Google GenAI SDK framework."""
     ai_mode = st.session_state.get("ai_mode", "Bring Your Own Key (BYOK)")
     
     # --- OPTION A: BRING YOUR OWN KEY (BYOK) ---
@@ -14,35 +14,23 @@ def call_ai_agent(prompt, system_instruction="You are a helpful agriculture expe
         if not api_key:
             return "⚠️ Please enter your Google Gemini API Key in the sidebar configuration on the Home page to chat!"
             
-        # List of available models to cycle through in case one throws a 404
-        model_options = ["gemini-pro", "gemini-1.5-flash", "gemini-1.5-pro"]
-        
         try:
+            # 1. Configure the library with your new API key
             genai.configure(api_key=api_key)
             
-            # Loop through models until one works
-            for model_name in model_options:
-                try:
-                    model = genai.GenerativeModel(
-                        model_name=model_name,
-                        system_instruction=system_instruction
-                    )
-                    # Removed the invalid timeout keyword argument
-                    response = model.generate_content(prompt)
-                    return response.text
-                except Exception as model_err:
-                    # If it's a 404 or model support issue, continue to the next model option
-                    if "404" in str(model_err) or "not found" in str(model_err).lower():
-                        continue
-                    else:
-                        raise model_err
-                        
-            return "❌ Gemini SDK Error: All attempted model variations (gemini-pro, gemini-1.5-flash) returned 404. Please check if your API key has legacy model access restrictions."
+            # 2. Bind the standard stable production model directly
+            model = genai.GenerativeModel(
+                model_name="gemini-1.5-flash",
+                system_instruction=system_instruction
+            )
+            
+            # 3. Generate content
+            response = model.generate_content(prompt)
+            return response.text
             
         except Exception as e:
-            if "API_KEY_INVALID" in str(e) or "403" in str(e):
-                return "❌ Invalid API Key: Google rejected this key. Please copy a fresh key from Google AI Studio."
-            return f"❌ Gemini SDK Error: {str(e)}"
+            # Show the raw exact error coming from Google's servers
+            return f"❌ Google API Response Error: {str(e)}"
 
     # --- OPTION B: LOCAL INFERENCE (OLLAMA) ---
     else:
@@ -50,7 +38,7 @@ def call_ai_agent(prompt, system_instruction="You are a helpful agriculture expe
         if api_key:
             try:
                 genai.configure(api_key=api_key)
-                model = genai.GenerativeModel(model_name="gemini-pro", system_instruction=system_instruction)
+                model = genai.GenerativeModel(model_name="gemini-1.5-flash", system_instruction=system_instruction)
                 response = model.generate_content(prompt)
                 return response.text
             except Exception:
