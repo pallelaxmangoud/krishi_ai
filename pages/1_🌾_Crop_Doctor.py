@@ -30,8 +30,9 @@ if uploaded_file is not None:
 
         with st.spinner("Analyzing image... Please wait."):
             if "BYOK" in ai_mode:
-                api_key = st.session_state.get("api_key", "").strip()
-                provider = st.session_state.get("api_provider", "Google Gemini")
+                api_key = st.session_state.get("saved_api_key", "").strip()
+                if not api_key:
+                    api_key = st.session_state.get("api_key", "").strip()
                 
                 if not api_key:
                     st.error("⚠️ Please enter your API Key in the sidebar configuration on the Home page!")
@@ -40,30 +41,29 @@ if uploaded_file is not None:
                     image.save(buffered, format="JPEG")
                     img_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
                     
-                    if provider == "Google Gemini":
-                        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-                        payload = {
-                            "contents": [{
-                                "parts": [
-                                    {"text": system_instruction},
-                                    {
-                                        "inlineData": {
-                                            "mimeType": "image/jpeg",
-                                            "data": img_base64
-                                        }
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+                    payload = {
+                        "contents": [{
+                            "parts": [
+                                {"text": system_instruction},
+                                {
+                                    "inlineData": {
+                                        "mimeType": "image/jpeg",
+                                        "data": img_base64
                                     }
-                                ]
-                            }]
-                        }
-                        try:
-                            res = requests.post(url, json=payload, timeout=120)
-                            if res.status_code == 200:
-                                ai_text = res.json()['candidates'][0]['content']['parts'][0]['text']
-                                st.success("📋 Diagnosis Report:")
-                                st.markdown(ai_text)
-                            else:
-                                st.error(f"Gemini API returned error code: {res.status_code}")
-                        except Exception as e:
-                            st.error(f"Error processing image: {str(e)}")
+                                }
+                            ]
+                        }]
+                    }
+                    try:
+                        res = requests.post(url, json=payload, timeout=120)
+                        if res.status_code == 200:
+                            ai_text = res.json()['candidates'][0]['content']['parts'][0]['text']
+                            st.success("📋 Diagnosis Report:")
+                            st.markdown(ai_text)
+                        else:
+                            st.error(f"Gemini API returned error code: {res.status_code}")
+                    except Exception as e:
+                        st.error(f"Error processing image: {str(e)}")
             else:
                 st.info("💡 **Local Vision Inference:** To process images locally offline, run a vision model like `llava` using: `ollama run llava`")

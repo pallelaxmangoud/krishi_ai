@@ -7,7 +7,6 @@ def call_ai_agent(prompt, system_instruction="You are a helpful agriculture expe
     
     # --- OPTION A: BRING YOUR OWN KEY (BYOK) ---
     if "BYOK" in ai_mode or "Cloud" in ai_mode:
-        # Check both potential memory slots to be absolutely sure
         api_key = st.session_state.get("saved_api_key", "").strip()
         if not api_key:
             api_key = st.session_state.get("api_key", "").strip()
@@ -31,7 +30,7 @@ def call_ai_agent(prompt, system_instruction="You are a helpful agriculture expe
 
     # --- OPTION B: LOCAL INFERENCE (OLLAMA) ---
     else:
-        # If running on the live URL, enforce the cloud fallback if a key exists
+        # Fallback to Cloud execution if key is present on the public live server instance
         api_key = st.session_state.get("saved_api_key", "").strip()
         if api_key:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
@@ -43,4 +42,4 @@ def call_ai_agent(prompt, system_instruction="You are a helpful agriculture expe
             except Exception:
                 pass
         
-        return "❌ Local Ollama cannot be accessed directly from a live public URL web server. Please open the sidebar configuration settings on the Home page, toggle to 'Bring Your Own Key (BYOK)', and input your personal Gemini API Key!"git add App.py utils/ai_engine.py
+        return "❌ Local Ollama cannot be accessed directly from a live public URL web server. Please open the sidebar configuration settings on the Home page, toggle to 'Bring Your Own Key (BYOK)', and input your personal Gemini API Key!"

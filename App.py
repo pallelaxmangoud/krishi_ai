@@ -10,7 +10,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- CRITICAL FIX: Initialize persistent session storage ---
+# --- Initialize persistent session storage ---
 if "lang_code" not in st.session_state:
     st.session_state["lang_code"] = "en"
 if "ai_mode" not in st.session_state:
@@ -71,7 +71,7 @@ if "Local" in ai_mode:
 else:
     st.sidebar.selectbox("API Provider", options=["Google Gemini"], key="api_provider")
     
-    # Track the API key using a custom onChange action to prevent widget deletion loss
+    # Track the API key using session storage to prevent widget deletion loss
     input_key = st.sidebar.text_input(
         "Enter API Key", 
         type="password", 
@@ -79,7 +79,7 @@ else:
     )
     if input_key:
         st.session_state["saved_api_key"] = input_key
-        st.session_state["api_key"] = input_key  # Backward compatibility link
+        st.session_state["api_key"] = input_key
 
 # 3. Main Page Content Display
 st.title(f"🌾 {labels.get('welcome', 'Welcome to Krishi-AI')}")
